@@ -1,10 +1,11 @@
 name: MacOS
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch:
+  #push:
+  #  branches:
+  #    - main
+  #pull_request:
 
 jobs:
   macos-clang:
@@ -17,17 +18,19 @@ jobs:
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
+      - name: Get latest CMake
+        uses: lukka/get-cmake@v3.27.7
       - name: Clone Repository
         uses: actions/checkout@master
         with:
           submodules: true
       - name: C++ Setting
         run: |
-          brew install llvm cmake
+          brew install llvm
       - name: Compiler Setting
         run: |
-          echo "CC=/usr/local/opt/llvm/bin/clang" >> $GITHUB_ENV
-          echo "CXX=/usr/local/opt/llvm/bin/clang++" >> $GITHUB_ENV
+          echo "CC=/opt/homebrew/opt/llvm/bin/clang" >> $GITHUB_ENV
+          echo "CXX=/opt/homebrew/opt/llvm/bin/clang++" >> $GITHUB_ENV
       - name: CMake build
         run: |
           cmake -Bbuild -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ${{env.CMAKE_FLAGS}} .
