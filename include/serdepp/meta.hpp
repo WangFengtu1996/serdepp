@@ -57,7 +57,7 @@ namespace serde::meta {
     template <typename T>
     struct is_arrayable<T, std::void_t<decltype(std::declval<T>().begin()),
                                        decltype(std::declval<T>().end()),
-                                       decltype(std::declval<T>().reserve(0))>
+                                       decltype(std::declval<T>().data())>
                         > : std::true_type {};
     template<class T> constexpr auto is_arrayable_v = is_arrayable<T>::value;
 
