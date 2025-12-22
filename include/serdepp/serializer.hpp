@@ -476,7 +476,7 @@ namespace serde
         }
     };
 
-    namespace {
+    namespace detail {
         template <typename T>
         std::string to_string(const T& key) {
             if constexpr (std::is_arithmetic_v<T>) {
@@ -553,7 +553,7 @@ namespace serde
             new_T map_data;
             std::transform(data.begin(), data.end(), std::inserter(map_data, map_data.begin()),
                            [](const auto& pair) {
-                               return std::make_pair(to_string(pair.first), pair.second);
+                               return std::make_pair(detail::to_string(pair.first), pair.second);
                            });
             serde_adaptor<typename serde_ctx::Adaptor, new_T, type::map_t>::into(ctx.adaptor, key, map_data);
 
