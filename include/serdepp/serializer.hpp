@@ -476,61 +476,29 @@ namespace serde
         }
     };
 
-    namespace detail {
-        template <typename T>
-        std::string to_string(const T& key) {
-            if constexpr (std::is_arithmetic_v<T>) {
-                return std::to_string(key);
-            } else {
-                std::ostringstream oss;
-                oss << key;
-                return oss.str();
-            }
+    template<typename T>
+    constexpr inline std::string serialize(const T& data) {
+        if constexpr(std::is_arithmetic_v<T>) {
+            return std::to_string(data);
+        } else {
+            std::ostringstream oss;
+            oss << data;
+            return oss.str();
         }
     }
-    template <typename K, typename = void>
-    struct from_string {
-        static K  from(const std::string& key) {
-            K result;
-            std::stringstream ss(key);
-            ss >> result;
-            if (ss.fail()) {
-                throw std::runtime_error("Cannot convert JSON key to type " + std::string(typeid(K).name()));
-            }
-            return result;
-        }
-    };
 
-
-    template <>
-    struct from_string<std::string> {
-        static std::string  from(const std::string& key) {
-            return key;
+    template <typename T>
+    constexpr inline T deserialize( const std::string & data ) {
+       if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
+                return static_cast<T>(std::stoll(data));
+        } else if  constexpr (std::is_same_v<T, bool>) {
+            if (data == "true" || data == "1") return true;
+            if (data == "false" || data == "0") return false;
+        } else {
+            throw serde::unimplemented_error("unsupported type!!!");
         }
-    };
+    }
 
-    template <typename K>
-    struct from_string<K, std::enable_if_t<std::is_integral_v<K> && !std::is_same_v<K, bool>>> {
-        static K  from(const std::string& key) {
-            return static_cast<K>(std::stoll(key));
-        }
-    };
-
-    template <>
-    struct from_string<bool> {
-        static bool  from(const std::string& key) {
-            if (key == "true" || key == "1") return true;
-            if (key == "false" || key == "0") return false;
-            throw std::invalid_argument("Invalid boolean key: " + key);
-        }
-    };
-
-    template <typename K>
-    struct from_string<K, std::enable_if_t<std::is_enum_v<K>>> {
-        static K from(const std::string& key) {
-            return static_cast<K>(std::stoi(key));
-        }
-    };
     template<typename T, typename serde_ctx>
     struct serde_serializer<T, serde_ctx, std::enable_if_t<is_mappable_v<T> &&
                                                            is_emptyable_v<T> &&
