@@ -510,7 +510,7 @@ namespace serde
             serde_adaptor<typename serde_ctx::Adaptor, new_T, type::map_t>::from(ctx.adaptor, key, map_data);
             std::transform(map_data.begin(), map_data.end(),  std::inserter(data, data.begin()),
                            [](const auto& pair) {
-                               return std::make_pair(from_string<key_type>::from(pair.first), pair.second);
+                               return std::make_pair(deserialize<key_type>(pair.first), pair.second);
                            });
             ctx.read();
         }
@@ -521,7 +521,7 @@ namespace serde
             new_T map_data;
             std::transform(data.begin(), data.end(), std::inserter(map_data, map_data.begin()),
                            [](const auto& pair) {
-                               return std::make_pair(detail::to_string(pair.first), pair.second);
+                               return std::make_pair(serialize(pair.first), pair.second);
                            });
             serde_adaptor<typename serde_ctx::Adaptor, new_T, type::map_t>::into(ctx.adaptor, key, map_data);
 
